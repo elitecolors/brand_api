@@ -19,32 +19,56 @@ class ContactRepository extends ServiceEntityRepository
         parent::__construct($registry, Contact::class);
     }
 
-    // /**
-    //  * @return Contact[] Returns an array of Contact objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findByParam(array $criteria, array $orderBy = null, $limit = null, $offset = null)
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $persister = $this->_em->getUnitOfWork()->getEntityPersister($this->_entityName);
 
-    /*
-    public function findOneBySomeField($value): ?Contact
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $persister->loadAll($criteria, $orderBy, $limit, $offset);
     }
-    */
+
+    public function findInAll($search,$limit=1,$offset=0)
+    {
+
+        $checkValidTime= (bool)strtotime($search);
+        $date=false;
+        if($checkValidTime){
+            $date = strtotime($search);
+
+        }
+
+        return $this->createQueryBuilder('c')
+
+            ->where('c.user_name LIKE :search')
+            ->orWhere('c.first_name LIKE :search')
+            ->orWhere('c.id LIKE :search')
+            ->orWhere('c.name_prefix LIKE :search')
+            ->orWhere('c.first_name LIKE :search')
+            ->orWhere('c.midle_name LIKE :search')
+            ->orWhere('c.last_name LIKE :search')
+            ->orWhere('c.gender LIKE :search')
+            ->orWhere('c.email LIKE :search')
+            ->orWhere('c.date_birth = :dateBirth')
+            ->orWhere('c.time_birth = :timeBirth')
+            ->orWhere('c.age_birth = :ageBirth')
+            ->orWhere('c.date_join = :dateJoin')
+            ->orWhere('c.age_in_company = :ageCompany')
+            ->orWhere('c.phone LIKE :search')
+            ->orWhere('c.place LIKE :search')
+            ->orWhere('c.country LIKE :search')
+            ->orWhere('c.city LIKE :search')
+            ->orWhere('c.zip LIKE :search')
+            ->orWhere('c.region LIKE :search')
+            ->setParameter('search', '%'.$search.'%')
+            ->setParameter('dateJoin',  new \DateTime( date('d/M/Y:H:i:s', $date) ?  false : false), \Doctrine\DBAL\Types\Type::DATETIME)
+            ->setParameter('ageCompany',  new \DateTime(date('d/M/Y:H:i:s', $date) ?  false : false), \Doctrine\DBAL\Types\Type::DATETIME)
+            ->setParameter('ageBirth',  new \DateTime(date('d/M/Y:H:i:s', $date) ?  false : false), \Doctrine\DBAL\Types\Type::DATETIME)
+            ->setParameter('timeBirth',  new \DateTime(date('d/M/Y:H:i:s', $date) ?  false : false), \Doctrine\DBAL\Types\Type::DATETIME)
+            ->setParameter('dateBirth',  new \DateTime(date('d/M/Y:H:i:s', $date) ?  false : false), \Doctrine\DBAL\Types\Type::DATETIME)
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+
+            ->getResult();
+    }
+
 }
