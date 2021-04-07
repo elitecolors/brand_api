@@ -126,6 +126,9 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.1.1"
     },
+    "nikic/php-parser": {
+        "version": "v4.10.4"
+    },
     "php": {
         "version": "7.2"
     },
@@ -180,6 +183,9 @@
     },
     "symfony/dependency-injection": {
         "version": "v4.4.21"
+    },
+    "symfony/deprecation-contracts": {
+        "version": "v2.2.0"
     },
     "symfony/doctrine-bridge": {
         "version": "v4.4.21"
@@ -253,6 +259,15 @@
     "symfony/intl": {
         "version": "v4.4.20"
     },
+    "symfony/maker-bundle": {
+        "version": "1.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "1.0",
+            "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
+        }
+    },
     "symfony/mime": {
         "version": "v4.4.21"
     },
@@ -318,6 +333,23 @@
     "symfony/translation-contracts": {
         "version": "v2.3.0"
     },
+    "symfony/twig-bridge": {
+        "version": "v4.4.21"
+    },
+    "symfony/twig-bundle": {
+        "version": "4.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.4",
+            "ref": "15a41bbd66a1323d09824a189b485c126bbefa51"
+        },
+        "files": [
+            "config/packages/test/twig.yaml",
+            "config/packages/twig.yaml",
+            "templates/base.html.twig"
+        ]
+    },
     "symfony/validator": {
         "version": "4.3",
         "recipe": {
@@ -339,6 +371,9 @@
     },
     "symfony/yaml": {
         "version": "v4.4.21"
+    },
+    "twig/twig": {
+        "version": "v3.3.0"
     },
     "willdurand/jsonp-callback-validator": {
         "version": "v1.1.0"
