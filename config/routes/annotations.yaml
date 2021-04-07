@@ -7,6 +7,6 @@ kernel:
     type: annotation
 
 rest_controller:
-    resource: ../../src/Controller
+    resource: ../../src/Controller/RestApi
     type: annotation
     prefix: /api
