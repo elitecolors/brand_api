@@ -63,17 +63,17 @@ class Contact
     private $time_birth;
 
     /**
-     * @ORM\Column(type="dateinterval")
+     * @ORM\Column(type="string", nullable=true)
      */
     private $age_birth;
 
     /**
-     * @ORM\Column(type="date", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
     private $date_join;
 
     /**
-     * @ORM\Column(type="dateinterval", nullable=true)
+     * @ORM\Column(type="string", nullable=true)
      */
     private $age_in_company;
 
@@ -225,7 +225,7 @@ class Contact
         return $this->age_birth;
     }
 
-    public function setAgeBirth(\DateInterval $age_birth): self
+    public function setAgeBirth( $age_birth): self
     {
         $this->age_birth = $age_birth;
 
@@ -237,7 +237,7 @@ class Contact
         return $this->date_join;
     }
 
-    public function setDateJoin(?\DateTimeInterface $date_join): self
+    public function setDateJoin( $date_join): self
     {
         $this->date_join = $date_join;
 
@@ -249,7 +249,7 @@ class Contact
         return $this->age_in_company;
     }
 
-    public function setAgeInCompany(?\DateInterval $age_in_company): self
+    public function setAgeInCompany($age_in_company): self
     {
         $this->age_in_company = $age_in_company;
 

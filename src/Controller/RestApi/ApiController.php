@@ -6,15 +6,20 @@ use FOS\RestBundle\Controller\AbstractFOSRestController;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use  Doctrine\Persistence\ObjectManager;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\FOSRestBundle;
 use FOS\RestBundle\Request\ParamFetcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\View\View;
-use App\Entity\Contact;
-use App\Form\EmployeType;
 
+use App\Entity\Contact;
+use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\Encoder\CsvEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 class ApiController extends AbstractFOSRestController
 {
 
@@ -93,6 +98,84 @@ class ApiController extends AbstractFOSRestController
         return $this->handleView($this->view($contact)->setFormat($format));
     }
 
+    /**
+     * Import file
+     * @Rest\Post("/employee/import")
+     */
+    public function importFile(Request $request,ValidatorInterface $validator)
+    {
+        $file = $request->files->get('file');
+
+        if(empty($file)){
+            return$this->handleView($this->view(['message' => 'file not found']));
+        }
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $name =time() . '_' . $file->getClientOriginalName();
+        $path = $this->getParameter('file_directory');
+        // upload  file
+        $file->move($path, $name);
+
+        // 3d part read file
+        $context = [
+            CsvEncoder::DELIMITER_KEY => ',',
+            CsvEncoder::ENCLOSURE_KEY => '"',
+            CsvEncoder::ESCAPE_CHAR_KEY => '\\',
+            CsvEncoder::KEY_SEPARATOR_KEY => ';',
+        ];
+
+        $serializer = new Serializer([new ObjectNormalizer()], [new CsvEncoder()]);
+        $serializer = $this->get('serializer');
+        // get data
+        $data = $serializer->decode(file_get_contents($path.$name), 'csv', $context);
+
+
+        if(!empty($data)){
+            foreach ($data as $ligne ){
+
+                $emailConstraint = new Assert\Email();
+                $emailConstraint->message = 'Invalid email address';
+
+                // validate email
+                $errors = $validator->validate(
+                   $ligne['E Mail'],
+                    $emailConstraint
+                );
+
+                if($errors->count()>0){
+                    // to do add errors return
+                    continue;
+                }
+
+                // create new employee
+                $employeContact=new Contact();
+                $employeContact->setFirstName($ligne['First Name']);
+                $employeContact->setUserName($ligne['User Name']);
+                $employeContact->setMidleName($ligne['Middle Initial']);
+                $employeContact->setLastName($ligne['Last Name']);
+                $employeContact->setNamePrefix($ligne['Name Prefix']);
+                $employeContact->setDateJoin(\DateTime::createFromFormat('d/m/yy', $ligne['Date of Joining'])->format('y-m-d'));
+                $employeContact->setTimeBirth(\DateTime::createFromFormat('h:m:s', date('h:m:s', strtotime($ligne['Time of Birth']))));
+                $employeContact->setAgeBirth($ligne['Age in Yrs.']);
+                $employeContact->setAgeInCompany($ligne['Age in Company (Years)']);
+                $employeContact->setCity($ligne['City']);
+                $employeContact->setEmail($ligne['E Mail']);
+                $employeContact->setCountry($ligne['County']);
+                $employeContact->setGender($ligne['Gender']);
+                $employeContact->setPlace($ligne['Place Name']);
+                $employeContact->setRegion($ligne['Region']);
+                $employeContact->setZip($ligne['Zip']);
+                $employeContact->setPhone($ligne['Phone No. ']);
+                $employeContact->setDateBirth(\DateTime::createFromFormat('h:m:s', date('h:m:s', strtotime($ligne['Date of Birth']))));
+                $entityManager->persist($employeContact);
+                $entityManager->flush();
+            }
+            return$this->handleView($this->view(['message' => 'data imported ']));
+        }
+             else {
+            return$this->handleView($this->view(['message' => 'cant read csv file ']));
+        }
+    }
 }
 
 
